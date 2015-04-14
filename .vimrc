@@ -1,4 +1,4 @@
-" Ver. 2014/03/06
+" Version 2014/10/31
 "
 " Original From https://github.com/sontek/dotfiles/
 " ==========================================================
@@ -9,7 +9,7 @@
 " Ack
 " Rake & Ruby for command-t
 " nose, django-nose
-
+"
 " ==========================================================
 " Plugins included
 " ==========================================================
@@ -94,12 +94,14 @@
 "
 " vim-addon-mw-utils
 "   Interpret a file by function and cache file automatically.
-"
+
+
 " ==========================================================
 " Color Schemes
 " ==========================================================
-highlight SpellBad ctermbg=0
-highlight ColorColumn ctermbg=5
+highlight SpellBad cterm=bold ctermbg=4
+highlight ColorColumn ctermfg=7 ctermbg=5
+
 
 " ==========================================================
 " Change Cursor Shape
@@ -121,13 +123,14 @@ endif
 
 if has("autocmd")
     " reset cursor when exits
-    au VimLeave * silent !echo -ne "\033]112\007"
+    autocmd VimLeave * silent !echo -ne "\033]112\007"
     " if vim is running in a gnome-terminal
-    "au InsertEnter * silent execute "!gconftool-2 --type string --set /apps/gnome-terminal/profiles/Default/cursor_shape ibeam"
-    "au InsertLeave * silent execute "!gconftool-2 --type string --set /apps/gnome-terminal/profiles/Default/cursor_shape block"
-    "au VimLeave * silent execute "!gconftool-2 --type string --set /apps/gnome-terminal/profiles/Default/cursor_shape ibeam"
-    "au VimEnter * silent execute "!gconftool-2 --type string --set /apps/gnome-terminal/profiles/Default/cursor_shape ibeam"
+    "autocmd InsertEnter * silent execute "!gconftool-2 --type string --set /apps/gnome-terminal/profiles/Default/cursor_shape ibeam"
+    "autocmd InsertLeave * silent execute "!gconftool-2 --type string --set /apps/gnome-terminal/profiles/Default/cursor_shape block"
+    "autocmd VimLeave * silent execute "!gconftool-2 --type string --set /apps/gnome-terminal/profiles/Default/cursor_shape ibeam"
+    "autocmd VimEnter * silent execute "!gconftool-2 --type string --set /apps/gnome-terminal/profiles/Default/cursor_shape ibeam"
 endif
+
 
 " ==========================================================
 " Shortcuts
@@ -135,25 +138,52 @@ endif
 set nocompatible              " Don't be compatible with vi
 let mapleader = ','           " change the leader to be a comma vs slash
 
+" Reload Vimrc
+map <silent> <leader>V :source ~/.vimrc<CR>:filetype detect<CR>:exe ":echo 'vimrc reloaded'"<CR>
+
 " Seriously, guys. It's not like :W is bound to anything anyway.
 command! W :w
 
-fu! SplitScroll()
+" for when we forget to use sudo to open a file
+cmap w!! w !sudo tee % >/dev/null
+cmap W! w !sudo tee % >/dev/null
+
+" and lets make these all work in insert mode too ( <C-O> makes next cmd
+" happen as if in command mode )
+imap <C-W> <C-O><C-W>
+
+" ctrl-jklm  changes to that split
+map <c-j> <c-w>j
+map <c-k> <c-w>k
+map <c-l> <c-w>l
+map <c-h> <c-w>h
+
+" Resize window
+nnoremap <silent> <leader>+ :exe "resize " . (winheight(0) * 987 / 610)<CR>
+nnoremap <silent> <leader>- :exe "resize " . (winheight(0) * 610 / 987)<CR>
+nnoremap <silent> <leader>> :exe "vertical resize " . (winwidth(0) * 987 / 610)<CR>
+nnoremap <silent> <leader>< :exe "vertical resize " . (winwidth(0) * 610 / 987)<CR>
+
+" open/close the quickfix window
+nmap <leader>c :copen<CR>
+nmap <leader>cc :cclose<CR>
+
+function! SplitScroll()
     :wincmd v
     :wincmd w
     execute "normal! \<C-d>"
     :set scrollbind
     :wincmd w
     :set scrollbind
-endfu
-
+endfunction
 nmap <leader>sb :call SplitScroll()<CR>
 
+" ----------------------------
+" Open NerdTree
+map <leader>n :NERDTreeToggle<CR>
 
-"<CR><C-w>l<C-f>:set scrollbind<CR>
-
-" sudo write this
-cmap W! w !sudo tee % >/dev/null
+" Load the Gundo window
+map <leader>g :GundoToggle<CR>
 
 " Toggle the tasklist
 map <leader>td <Plug>TaskList
@@ -161,6 +191,35 @@ map <leader>td <Plug>TaskList
 " highlight tasklist
 nnoremap <silent> <leader>tt :hi myTodoList ctermbg=white ctermfg=black guibg=white guifg=black<CR>:mat myTodoList /\(TODO\)\\|\(FIXME\)\\|\(XXX\)\\|\(NOTE\)\\|\(MARK\)/<CR>
 nnoremap <silent> <leader>t<space> :hi clear myTodoList<CR>
+
+" Run command-t file search
+map <leader>f :CommandT<CR>
+
+" Ack searching
+nmap <leader>a <Esc>:Ack!
+
+" Supertab Mapping(default: '<tab>' and '<s-tab>')
+" (The following settings are equal to '<c-space>' and '<s-c-space>')
+"let g:SuperTabMappingForward = '<nul>'
+"let g:SuperTabMappingBackward = '<s-nul>'
+
+" ----------------------------
+" Trinity Mapping
+" Open and close all the three plugins on the same time
+nmap <F6>  :TrinityToggleAll<CR>
+" Open and close the Source Explorer separately
+nmap <F7>  :TrinityToggleSourceExplorer<CR>
+" Open and close the Taglist separately
+nmap <F8> :TrinityToggleTagList<CR>
+" Open and close the NERD Tree separately
+nmap <F9> :TrinityToggleNERDTree<CR>
+
+" ----------------------------
+" Jump to the definition of whatever the cursor is on
+map <leader>j :RopeGotoDefinition<CR>
+
+" Rename whatever the cursor is on (including references to it)
+map <leader>r :RopeRename<CR>
 
 " Run pep8
 let g:pep8_map = '<leader>8'
@@ -176,63 +235,6 @@ nmap <silent><Leader>te <Esc>:Pytest error<CR>
 " Run django tests
 map <leader>dt :set makeprg=python\ manage.py\ test\|:call MakeGreen()<CR>
 
-" Reload Vimrc
-map <silent> <leader>V :source ~/.vimrc<CR>:filetype detect<CR>:exe ":echo 'vimrc reloaded'"<CR>
-
-" open/close the quickfix window
-nmap <leader>c :copen<CR>
-nmap <leader>cc :cclose<CR>
-
-" for when we forget to use sudo to open/edit a file
-cmap w!! w !sudo tee % >/dev/null
-
-" ctrl-jklm  changes to that split
-map <c-j> <c-w>j
-map <c-k> <c-w>k
-map <c-l> <c-w>l
-map <c-h> <c-w>h
-
-" and lets make these all work in insert mode too ( <C-O> makes next cmd
-"  happen as if in command mode )
-imap <C-W> <C-O><C-W>
-
-" Open NerdTree
-map <leader>n :NERDTreeToggle<CR>
-
-" Run command-t file search
-map <leader>f :CommandT<CR>
-" Ack searching
-nmap <leader>a <Esc>:Ack!
-
-" Load the Gundo window
-map <leader>g :GundoToggle<CR>
-
-" Jump to the definition of whatever the cursor is on
-map <leader>j :RopeGotoDefinition<CR>
-
-" Rename whatever the cursor is on (including references to it)
-map <leader>r :RopeRename<CR>
-
-" Resize window
-nnoremap <silent> <leader>+ :exe "resize " . (winheight(0) * 987 / 610)<CR>
-nnoremap <silent> <leader>- :exe "resize " . (winheight(0) * 610 / 987)<CR>
-nnoremap <silent> <leader>> :exe "vertical resize " . (winwidth(0) * 987 / 610)<CR>
-nnoremap <silent> <leader>< :exe "vertical resize " . (winwidth(0) * 610 / 987)<CR>
-
-" Supertab Mapping(default: '<tab>' and '<s-tab>')
-" (The following settings are equal to '<c-space>' and '<s-c-space>')
-"let g:SuperTabMappingForward = '<nul>'
-"let g:SuperTabMappingBackward = '<s-nul>'
-
-" Trinity Mapping
-" Open and close all the three plugins on the same time
-nmap <F6>  :TrinityToggleAll<CR>
-" Open and close the Source Explorer separately
-nmap <F7>  :TrinityToggleSourceExplorer<CR>
-" Open and close the Taglist separately
-nmap <F8> :TrinityToggleTagList<CR>
-" Open and close the NERD Tree separately
-nmap <F9> :TrinityToggleNERDTree<CR>
 
 " ==========================================================
 " Pathogen - Allows us to organize our vim plugins
@@ -245,9 +247,12 @@ filetype off
 "call add(g:pathogen_disabled, 'supertab')
 "call add(g:pathogen_disabled, 'python-mode')
 "call add(g:pathogen_disabled, 'coffee')
+" Disable pylint auto-checking on every save. Use :PyLint to check manually.
+autocmd FileType python let g:pymode_lint_write = 0
 
 execute pathogen#infect()
 execute pathogen#helptags()
+
 
 " ==========================================================
 " Basic Settings
@@ -270,28 +275,22 @@ set wildmode=full             " <Tab> cycles between all matching choices.
 set noerrorbells
 set vb t_vb=
 
-" Ignore these files when completing
+" Set working directory
+nnoremap <leader>. :lcd %:p:h<CR>
+
+" ----------------------------
+" Insert completion
+" ignore these files when completing
 set wildignore+=*.o,*.obj,.git,*.pyc
 set wildignore+=eggs/**
 set wildignore+=*.egg-info/**
 
-set grepprg=ack         " replace the default grep program with ack
-
-
-" Set working directory
-nnoremap <leader>. :lcd %:p:h<CR>
-
-" Disable the colorcolumn when switching modes.  Make sure this is the
-" first autocmd for the filetype here
-"autocmd FileType * setlocal colorcolumn=0
-
-""" Insert completion
 " don't select first item, follow typing in autocomplete
 set completeopt=menuone,longest,preview
 set pumheight=6             " Keep a small completion window
 
-
-""" Moving Around/Editing
+" ----------------------------
+" Moving Around/Editing
 set cursorline              " have a line indicate the cursor location
 set ruler                   " show the cursor position all the time
 set nostartofline           " Avoid moving cursor to BOL when jumping around
@@ -303,7 +302,7 @@ set nowrap                  " don't wrap text
 set linebreak               " don't wrap textin the middle of a word
 set autoindent              " always set autoindenting on
 set smartindent             " use smart indent if there is no indent file
-set tabstop=4               " <tab> inserts 4 spaces 
+set tabstop=8               " <tab> inserts 8 spaces 
 set shiftwidth=4            " but an indent level is 2 spaces wide.
 set softtabstop=4           " <BS> over an autoindent deletes both spaces.
 set expandtab               " Use spaces, not tabs, for autoindent/tab key.
@@ -319,7 +318,8 @@ inoremap # #
 autocmd CursorMovedI * if pumvisible() == 0|pclose|endif
 autocmd InsertLeave * if pumvisible() == 0|pclose|endif
 
-"""" Reading/Writing
+" ----------------------------
+" Reading/Writing
 set noautowrite             " Never write a file unless I request it.
 set noautowriteall          " NEVER.
 set noautoread              " Don't automatically re-read changed files.
@@ -327,7 +327,8 @@ set modeline                " Allow vim options to be embedded in files;
 set modelines=5             " they must be within the first or last 5 lines.
 set ffs=unix,dos,mac        " Try recognizing dos, unix, and mac line endings.
 
-"""" Messages, Info, Status
+" ----------------------------
+" Messages, Info, Status
 set ls=2                    " allways show status line
 set vb t_vb=                " Disable all bells.  I hate ringing/flashing.
 set confirm                 " Y-N-C prompt if closing with unsaved changes.
@@ -339,18 +340,21 @@ set laststatus=2            " Always show statusline, even if only 1 window.
 set statusline=[%l,%v\ %P%M]\ %f\ %r%h%w\ (%{&ff})\ %{fugitive#statusline()}
 set showmode                " If in Insert, Replace or Visual mode put a message on the last line.
 
-" displays tabs with :set list & displays when a line runs off-screen
-set listchars=tab:>-,eol:$,trail:-,precedes:<,extends:>
-"set list
-
-""" Searching and Patterns
+" ----------------------------
+" Searching and Patterns
+set grepprg=ack             " replace the default grep program with ack
 set ignorecase smartcase    " Default to using case insensitive searches,
 set smartcase               " unless uppercase letters are used in the regex.
 set smarttab                " Handle tabs more intelligently 
 set hlsearch                " Highlight searches by default.
 set incsearch               " Incrementally search while typing a /regex
 
-"""" Display
+" ----------------------------
+" Display
+" displays tabs with :set list & displays when a line runs off-screen
+set listchars=tab:>-,eol:$,trail:-,precedes:<,extends:>
+"set list
+
 if has("gui_running")
     colorscheme desert
     " Remove menu bar
@@ -359,7 +363,7 @@ if has("gui_running")
     " Remove toolbar
     set guioptions-=T
 else
-"    colorscheme torte
+    "colorscheme torte
 endif
 
 " Paste from clipboard
@@ -377,40 +381,41 @@ nnoremap <leader>S :%s/\s\+$//<cr>:let @/ = ''<CR>
 " Select the item in the list with enter
 inoremap <expr> <CR> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
 
+
 " ==========================================================
-" Javascript
-" ==========================================================
-au BufRead *.js set makeprg=jslint\ %
-
-" Use tab to scroll through autocomplete menus
-"autocmd VimEnter * imap <expr> <Tab> pumvisible() ? "<C-N>" : "<Tab>"
-"autocmd VimEnter * imap <expr> <S-Tab> pumvisible() ? "<C-P>" : "<S-Tab>"
-
-let g:acp_completeoptPreview = 1
-
-" ===========================================================
 " FileType specific changes
-" ============================================================
+" ==========================================================
+if (v:version >= '703')
+    " Disable the colorcolumn when switching modes.  Make sure this is the
+    " first autocmd for the filetype here
+    "autocmd FileType * setlocal colorcolumn=0
+    set colorcolumn=79         " Only available on vim 7.3
+    "autocmd BufRead *.[^p][^y]* setlocal colorcolumn=79
+    "autocmd BufRead *.py setlocal colorcolumn=72,79  "Column 72 is for docstrings
+endif
+
+" ----------------------------
 " Extend custom TaskList
 let g:tlTokenList = ['FIXME', 'TODO', 'XXX']
 call extend(g:tlTokenList, ['NOTE', 'MARK'])
 
-" Mako/HTML
-autocmd BufNewFile,BufRead *.mako,*.mak,*.jinja2 setlocal ft=html
-autocmd FileType html,xhtml,xml,css setlocal expandtab shiftwidth=2 tabstop=2 softtabstop=2
+" ----------------------------
+" C/C++
+autocmd FileType c,cpp setlocal noexpandtab tabstop=4
 
+" ----------------------------
 " Python
-"au BufRead *.py compiler nose
-au FileType python set omnifunc=pythoncomplete#Complete
-au FileType python setlocal expandtab shiftwidth=4 tabstop=8 softtabstop=4 smartindent cinwords=if,elif,else,for,while,try,except,finally,def,class,with
-au FileType coffee setlocal expandtab shiftwidth=4 tabstop=8 softtabstop=4 smartindent cinwords=if,elif,else,for,while,try,except,finally,def,class,with
-au BufRead *.py set efm=%C\ %.%#,%A\ \ File\ \"%f\"\\,\ line\ %l%.%#,%Z%[%^\ ]%\\@=%m
+"autocmd BufRead *.py compiler nose
+autocmd BufRead *.py set efm=%C\ %.%#,%A\ \ File\ \"%f\"\\,\ line\ %l%.%#,%Z%[%^\ ]%\\@=%m
+autocmd FileType python set omnifunc=pythoncomplete#Complete
+autocmd FileType python setlocal expandtab shiftwidth=4 tabstop=8 softtabstop=4 smartindent cinwords=if,elif,else,for,while,try,except,finally,def,class,with
+
 " Don't let pyflakes use the quickfix window
-au FileType python let g:pyflakes_use_quickfix = 0
-au FileType python let g:pymode_breakpoint = 0
-au FileType python let g:pymode_lint_checker = 'pylint'
-au filetype python let g:pymode_lint_ignore = 'W0105'
-"au filetype python let g:pymode_lint_ignore = 'W0611'
+autocmd FileType python let g:pyflakes_use_quickfix = 0
+autocmd FileType python let g:pymode_breakpoint = 0
+autocmd FileType python let g:pymode_lint_checker = 'pylint'
+autocmd filetype python let g:pymode_lint_ignore = 'W0105'
+"autocmd filetype python let g:pymode_lint_ignore = 'W0611'
 
 " Add the virtualenv's site-packages to vim path
 if has('python')
@@ -426,11 +431,27 @@ if 'VIRTUAL_ENV' in os.environ:
 EOF
 endif
 
+" ----------------------------
+" Mako/HTML
+autocmd BufNewFile,BufRead *.mako,*.mak,*.jinja2 setlocal ft=html
+autocmd FileType html,xhtml,xml,css setlocal expandtab shiftwidth=2 tabstop=2 softtabstop=2
+
+" ----------------------------
+" Javascript
+autocmd BufRead *.js set makeprg=jslint\ %
+
+" Use tab to scroll through autocomplete menus
+"autocmd VimEnter * imap <expr> <Tab> pumvisible() ? "<C-N>" : "<Tab>"
+"autocmd VimEnter * imap <expr> <S-Tab> pumvisible() ? "<C-P>" : "<S-Tab>"
+
+let g:acp_completeoptPreview = 1
+
+" ----------------------------
+" CoffeeScript
+autocmd FileType coffee setlocal expandtab shiftwidth=4 tabstop=8 softtabstop=4 smartindent cinwords=if,elif,else,for,while,try,except,finally,def,class,with
+
+" ----------------------------
 " Load up virtualenv's vimrc if it exists
 if filereadable($VIRTUAL_ENV . '/.vimrc')
     source $VIRTUAL_ENV/.vimrc
-endif
-
-if !(v:version < '703')
-    set colorcolumn=79         " Only available on vim 7.3
 endif
