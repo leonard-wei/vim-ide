@@ -1,0 +1,18 @@
+set directory=~/tmp/vimswap,/var/tmp,/tmp
+                            " List of directory names for the swap file, separated with commas.
+set backupdir=~/tmp/vimswap,/var/tmp,/tmp
+                            " List of directories for the backup file, separated with commas.
+set nu                      " show line number
+set hlsearch                " highlight the search item
+set autoindent              " always set autoindenting on
+set smartindent             " use smart indent if there is no indent file
+set ruler                   " show status(lower right corner)
+set showmode                " show edit mode(lower left corner)
+syntax on                   " syntax check
+set background=dark         " change color fit background
+set ic smartcase            " ignore case smartcase mode
+set tabstop=4               " <tab> inserts 4 spaces 
+set shiftwidth=4            " but an indent level is 2 spaces wide.
+set softtabstop=4           " <BS> over an autoindent deletes both spaces.
+set expandtab               " Use spaces, not tabs, for autoindent/tab key.
+set shiftround              " rounds indent to a multiple of shiftwidth
