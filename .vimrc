@@ -1,5 +1,7 @@
 " Version 2014/10/31
 "
+" https://github.com/leonard-wei/vim-ide.git
+"   by Leonard Wei <gooxxgle.mail@gmail.com>
 " Original From https://github.com/sontek/dotfiles/
 " ==========================================================
 " Dependencies - Libraries/Applications outside of vim
