@@ -4,7 +4,6 @@
 Session.vim
 .netrwhist
 *~
-*.log
 *.swp
 
 # Byte-compiled / optimized / DLL files
