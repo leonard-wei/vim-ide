@@ -101,6 +101,7 @@
 " ==========================================================
 " Color Schemes
 " ==========================================================
+colorscheme dark
 highlight SpellBad cterm=bold ctermbg=4
 highlight ColorColumn ctermfg=7 ctermbg=5
 
@@ -279,6 +280,14 @@ set vb t_vb=
 
 " Set working directory
 nnoremap <leader>. :lcd %:p:h<CR>
+
+" Set list & nolist
+nnoremap <leader>l :setlocal list<CR>
+nnoremap <leader>ll :setlocal nolist<CR>
+
+" Set wrap & nowrap
+nnoremap <leader>w :setlocal wrap<CR>
+nnoremap <leader>ww :setlocal nowrap<CR>
 
 " ----------------------------
 " Insert completion
